@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Scraping</title>
+</head>
+<body>
+    <h1>Business Scraping</h1>
+    
+    <form action="/business" method="POST">
+        <label for="search_query">Enter Business Search Query:</label><br>
+        <input type="text" id="search_query" name="search_query" placeholder="Enter your query" required><br><br>
+        <button type="submit">Start Scraping</button>
+    </form>
+
+  
+{% if scraped_file %}
+<h3>Scraped data for business query is ready!</h3>
+<a href="{{ url_for('download', filename=scrapeed_file) }}" class="btn btn-primary">Download CSV</a>
+{% endif %}
+
+
+    <br>
+    <a href="/">Go Back to Home</a>
+</body>
+</html>
