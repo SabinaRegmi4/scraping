@@ -56,9 +56,7 @@ def extract(driver):
         print(f"Company website element not found: {e}")
     
     return company_data
-
-
-def scrape_search_query(search_query, Country):
+def scrape_search_query(search_query, country):
     chrome_options = uc.ChromeOptions()
     chrome_options.add_argument("--disable-features=Translate")
     chrome_options.add_argument('--lang=en-US')
@@ -76,10 +74,10 @@ def scrape_search_query(search_query, Country):
     output_folder = os.path.join("model", "output", "raw-output")
     os.makedirs(output_folder, exist_ok=True)
 
+    filename = f"{search_query.replace(' ', '_').lower()}_{country.lower()}.csv"
+    file_path = os.path.join(output_folder, filename)
 
-    csv_filename = os.path.join(output_folder, f"{search_query.replace(' ', '_').lower()}.csv")
-
-    with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["Query", "Country", "Name", "Phone", "Website"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -93,11 +91,11 @@ def scrape_search_query(search_query, Country):
     for item in links:
         link = item["url"]
         updated_url = link.replace("Yoga%20in%20Belgium", search_query.replace(" ", "%20"))
-        updated_url = updated_url.replace("Belgium", Country)
+        updated_url = updated_url.replace("Belgium", country)
 
         try:
             driver.get(updated_url)
-            print(f"Processing country: {Country}")
+            print(f"Processing country: {country}")
             time.sleep(random.uniform(3, 5))
 
             human_scroll(driver)
@@ -108,7 +106,7 @@ def scrape_search_query(search_query, Country):
                         EC.presence_of_all_elements_located((By.XPATH, "//*[@class='DVBRsc']"))
                     )
                 except TimeoutException as e:
-                    print(f"No companies found on the page for {Country}: {e}")
+                    print(f"No companies found on the page for {country}: {e}")
                     break
 
                 for company in companies:
@@ -116,10 +114,10 @@ def scrape_search_query(search_query, Country):
                         hover_and_click(driver, company)
                         time.sleep(random.uniform(3, 5))
                         company_data = extract(driver)
-                        company_data["Country"] = Country
+                        company_data["Country"] = country
                         company_data["Query"] = search_query
 
-                        with open(csv_filename, 'a', newline='', encoding='utf-8') as csvfile:
+                        with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
                             writer = csv.DictWriter(csvfile, fieldnames=["Query", "Country", "Name", "Phone", "Website"])
                             writer.writerow(company_data)
                         print(f"Scraped data for company: {company_data['Name']}")
@@ -137,12 +135,12 @@ def scrape_search_query(search_query, Country):
                     time.sleep(random.uniform(5, 10))
 
                 except (NoSuchElementException, TimeoutException) as e:
-                    print(f"No 'Next' button found or last page reached for {Country}: {e}")
+                    print(f"No 'Next' button found or last page reached for {country}: {e}")
                     break
 
         except Exception as e:
-            print(f"Error occurred for link {link} ({Country}): {e}")
+            print(f"Error occurred for link {link} ({country}): {e}")
 
     driver.quit()
-    print(f"Scraping completed. Data saved to {csv_filename}.")
-    return csv_filename
+    print(f"Scraping completed. Data saved to {file_path}.")
+    return filename 

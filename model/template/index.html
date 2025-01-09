@@ -24,22 +24,22 @@
 
         /* Title styling */
         h1 {
-            color: #fff; /* White text for contrast */
+            color: #fff;
             font-size: 3.5em;
             margin-bottom: 40px;
             font-weight: bold;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5); /* Adding shadow for better visibility */
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5); /* Shadow for better visibility */
         }
 
-        /* Main container styling */
+        /* Main container styling with fading gradient */
         .container {
-            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+            background: linear-gradient(to right, rgba(173, 216, 230, 0.8), rgba(142, 68, 173, 0.8), rgba(255, 255, 255, 0.8)); /* Light blue to purple to white */
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 600px;
             padding: 60px 40px;
-            backdrop-filter: blur(12px); /* Subtle blur effect */
+            backdrop-filter: blur(10px); /* Subtle blur effect */
             animation: fadeIn 1.2s ease-out;
         }
 
@@ -55,7 +55,7 @@
         .scraping-button {
             display: flex;
             align-items: center;
-            background-color: #3498db; /* Light blue for primary button */
+            background: linear-gradient(to right, #8e44ad, #9b59b6); /* Button gradient from dark to light purple */
             color: white;
             border: none;
             padding: 16px 36px;
@@ -70,7 +70,7 @@
         }
 
         .scraping-button:hover {
-            background-color: #2980b9; /* Darker blue */
+            background: linear-gradient(to right, #6c3483, #8e44ad); /* Darker purple gradient for hover effect */
             transform: translateY(-4px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }

@@ -1,78 +1,70 @@
+import time
 import requests
 import csv
 
-url = "https://instagram-scraper-api2.p.rapidapi.com/v1/followers"
-headers = {
-    "x-rapidapi-key": "bc22e7587amshfc4d00fd8b7d2d5p177e78jsna0396e0bb76e",
-    "x-rapidapi-host": "instagram-scraper-api2.p.rapidapi.com"
-}
-
-def save_to_csv(data, filename="followers_data.csv"):
-    fieldnames = ['username', 'full_name', 'profile_picture', 'bio', 'website']
-    
-    with open(filename, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        if file.tell() == 0:  # If file is empty, write header
-            writer.writeheader()
-        writer.writerows(data)
-
-def fetch_followers_with_pagination(username, output_file):
+def get_instagram_data(username):
+    url = "https://instagram-scraper-api2.p.rapidapi.com/v1/info"
     querystring = {"username_or_id_or_url": username}
-    all_followers = []
-    pagination_token = None
+    headers = {
+        'x-rapidapi-key': "d3934419c0msh3b8edd6763061d0p1cee13jsnc9318ca42d50",
+        "x-rapidapi-host": "instagram-scraper-api2.p.rapidapi.com"
+    }
+    
+    retries = 5
+    for attempt in range(retries):
+        response = requests.get(url, headers=headers, params=querystring)
+        
+        if response.status_code == 200:
+            return response.json()
+        
+        elif response.status_code == 429:
+            print(f"Rate limit exceeded. Retrying after {2 ** attempt} seconds...")
+            time.sleep(2 ** attempt)
 
-    while True:
-        if pagination_token:
-            querystring['pagination_token'] = pagination_token  # Add pagination token if present
-
-        try:
-            response = requests.get(url, headers=headers, params=querystring)
-            response.raise_for_status()  # Raise error for bad HTTP status codes
-
-            # Print response status and content for debugging
-            print(f"Response Status Code: {response.status_code}")
-            print(f"Response Content: {response.text}")
-
-            data = response.json()
-
-            if 'message' in data:
-                print(f"API Error: {data['message']}")
-                break
-
-            if 'data' in data and 'items' in data['data']:
-                followers = data['data']['items']
-                print(f"Fetched {len(followers)} followers on this page.")
-
-                # Add followers to the list
-                for follower in followers:
-                    all_followers.append({
-                        'username': follower.get('username', ''),
-                        'full_name': follower.get('full_name', ''),
-                        'profile_picture': follower.get('profile_picture', ''),
-                        'bio': follower.get('bio', ''),
-                        'website': follower.get('website', ''),
-                    })
-
-                # Check for pagination token for next page
-                pagination_token = data['data'].get('pagination_token', None)
-                if pagination_token:
-                    print(f"Next page exists, fetching more followers...")
-                else:
-                    print("No more pages to fetch.")
-                    break
-            else:
-                print("No followers data found in the response.")
-                break
-
-        except requests.exceptions.RequestException as e:
-            print(f"Error during request: {e}")
+            print(f"Error {response.status_code}: {response.text}")
             break
+    return None
 
-    # Save all fetched followers to CSV
-    save_to_csv(all_followers, filename=output_file)
-    print(f"Fetched and saved {len(all_followers)} followers to {output_file}")
+def save_relevant_data_to_csv(data, filename="usernames.csv"):
+    with open(filename, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Username", "Full Name", "Public Email", "Contact Email", "URL"]) 
 
-if __name__ == "__main__":
-    username = "socialtownmarketing"  # Replace with the Instagram username you want to scrape
-    output_csv = "followers_usernames.csv"  # Output CSV file
-    fetch_followers_with_pagination(username, output_csv)
+        for user in data:
+            writer.writerow([user.get("username", ""), user.get("full_name", ""),
+                             user.get("public_email", ""), user.get("contact_email", ""), user.get("url", "")])
+
+username = "vaguzenergy"
+data = get_instagram_data(username)
+
+if data and 'data' in data and isinstance(data['data'], dict):
+    print(data)  
+
+    items = data['data'].get('items', [])
+    relevant_data = []
+
+    if isinstance(items, list):
+        for item in items:
+            if isinstance(item, dict):
+                url = item.get("url")
+                if url:
+                    user_data = get_instagram_data(url) 
+
+                    if user_data and 'data' in user_data and isinstance(user_data['data'], dict):
+                        user_info = {
+                            "username": user_data['data'].get("username", ""),
+                            "full_name": user_data['data'].get("full_name", ""),
+                            "url": user_data['data'].get("url", ""),
+                            "public_email": user_data['data'].get("public_email", ""), 
+                            "contact_email": user_data['data'].get("contact_email", "")  
+                        }
+                        relevant_data.append(user_info)
+
+        if relevant_data:
+            save_relevant_data_to_csv(relevant_data)
+        else:
+            print("No relevant data found.")
+    else:
+        print("The 'items' field is not a list or is missing.")
+else:
+    print("Failed to retrieve data.")

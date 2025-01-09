@@ -4,24 +4,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Scraping</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ADD8E6, #D8BFD8, #D3A6FF, #FFD700); /* Multiple color gradient */
+            background-size: 200% 200%;
+            animation: gradientBG 10s ease infinite;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        header {
+            text-align: center;
+            background: #a06ec4; 
+            padding: 25px 0;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #F8F8FF; /* Lighter color for better contrast */
+        }
+
+        .container {
+            width: 95%;
+            height: 400px; /* Adjusted to better fit the form and content */
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 35px;
+            background: linear-gradient(to right, #B3D9F7, #D9C5F7); /* Light gradient */
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; /* Ensures scrollable content */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Increased gap for better spacing */
+        }
+
+        label {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        input[type="text"] {
+            padding: 14px;
+            font-size: 1rem;
+            border: 2px solid #9b59b6;
+            border-radius: 6px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #8e44ad;
+            box-shadow: 0 0 10px rgba(142, 68, 173, 0.7);
+        }
+
+        button {
+            background: linear-gradient(to right, #6a0dad, #9b59b6);
+            color: white;
+            padding: 14px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-message {
+            margin-top: 25px;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .result-message h3 {
+            color: #6a0dad;
+        }
+
+        a {
+            color: #9b59b6;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #8e44ad;
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1rem;
+            color: #6a0dad;
+        }
+
+        .footer a {
+            color: #6a0dad;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #9b59b6;
+        }
+    </style>
 </head>
 <body>
-    <h1>Business Scraping</h1>
-    
-    <form action="/business" method="POST">
-        <label for="search_query">Enter Business Search Query:</label><br>
-        <input type="text" id="search_query" name="search_query" placeholder="Enter your query" required><br><br>
-        <button type="submit">Start Scraping</button>
-    </form>
+    <header>
+        <h1>Business Scraping</h1>
+    </header>
 
-  
-{% if scraped_file %}
-<h3>Scraped data for business query is ready!</h3>
-<a href="{{ url_for('download', filename=scrapeed_file) }}" class="btn btn-primary">Download CSV</a>
-{% endif %}
+    <div class="container">
+        <form action="/business" method="POST">
+            <label for="search_query">Enter Business Search Query:</label>
+            <input type="text" id="search_query" name="search_query" placeholder="Enter your query" required>
 
+            <button type="submit">Start Scraping</button>
+        </form>
+            {% if final_csv_filename %}
+                <div class="result-message">
+                    <h3>Scraping completed successfully!</h3>
+                    <p>Click the link below to download the final CSV file:</p>
+                    <a href="{{ url_for('download_business', filename=final_csv_filename.split('/')[-1]) }}" download>
+                        Download Final CSV
+                    </a>
+                </div>
+            {% endif %} 
+        <!-- {% if final_csv_filename %}
+        <div style="margin-top: 60px;">
+            <h2>Processing Complete</h2>
+            <a href="{{ url_for('download_csv', filename=final_csv_filename.split('/')[0]) }}" target="_blank">
+                <button>Download CSV</button>
+            </a>
+        </div>
+        {% endif %} -->
 
-    <br>
-    <a href="/">Go Back to Home</a>
-</body>
-</html>
+       
+
+        <div class="footer">
+            <a href="/">Go Back to Home</a>
+        </div>
+    </div>

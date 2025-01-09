@@ -4,10 +4,14 @@ import time
 import os
 
 API_URL = "https://website-social-scraper-api.p.rapidapi.com/contacts"
+# HEADERS = {
+#     "x-rapidapi-key": "bc22e7587amshfc4d00fd8b7d2d5p177e78jsna0396e0bb76e",
+#     "x-rapidapi-host": "website-social-scraper-api.p.rapidapi.com"
+# }
 HEADERS = {
-    "x-rapidapi-key": "bc22e7587amshfc4d00fd8b7d2d5p177e78jsna0396e0bb76e",
-    "x-rapidapi-host": "website-social-scraper-api.p.rapidapi.com"
-}
+            'x-rapidapi-key': "d3934419c0msh3b8edd6763061d0p1cee13jsnc9318ca42d50",
+            'x-rapidapi-host': "website-social-scraper-api.p.rapidapi.com"
+        }
 
 input_directory = "model/output/clean-output/"
 output_directory = "model/output/semi-output/"
@@ -33,7 +37,7 @@ def read_websites_from_csv(file_path):
 
 def save_results_to_csv(file_path, results):
     with open(file_path, "w", newline="", encoding="utf-8") as file:
-        fieldnames = ["Name", "Phone", "Website", "Emails", "Phones", "LinkedIn", "Twitter", "Facebook", "Instagram"]
+        fieldnames = ["Query", "Country", "Name", "Phone", "Website", "Emails", "Phones", "LinkedIn", "Twitter", "Facebook", "Instagram"]
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for result in results:

@@ -1,66 +1,64 @@
-import os
 import pandas as pd
+import os
+import re
 
-
-clean_output_dir=os.path.join(os.path.dirname(__file__), 'model/output/semi-ouput')
-final_output_dir = os.path.join(os.path.dirname(__file__), 'model/output/final-output')
-
-def create_directories(clean_output_dir, final_output_dir):
-    for directory in [clean_output_dir, final_output_dir]:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-def append_email_rows(df, final_output_filepath):
-    email_columns = [col for col in df.columns if 'email' in col.lower()]
-    if email_columns:
-        df[email_columns] = df[email_columns].astype(str)
-        email_rows = df[df[email_columns].apply(lambda x: x.str.contains('@')).any(axis=1)]
-        if not email_rows.empty:
-            if os.path.exists(final_output_filepath):
-                email_rows.to_csv(final_output_filepath, mode='a', index=False, header=False)
-            else:
-                email_rows.to_csv(final_output_filepath, index=False)
-
-def save_clean_rows(df, clean_output_filepath):
-    email_columns = [col for col in df.columns if 'email' in col.lower()]
-    if email_columns:
-        df = df.copy()  
-        df[email_columns] = df[email_columns].astype(str)
-        df.loc[~df.index.isin(df[df[email_columns].apply(lambda x: x.str.contains('@')).any(axis=1)].index), email_columns] = ''
-        df.to_csv(clean_output_filepath, index=False)
-
-
-def process_csv_files(input_dir, final_output_dir, clean_output_dir):
-    for filename in os.listdir(input_dir):
-        if filename.endswith('.csv'):
-            try:
-                filepath = os.path.join(input_dir, filename)
-                df = pd.read_csv(filepath)
-                
-                df.drop_duplicates(inplace=True)
-                
-               
-                df.dropna(inplace=True)
-         
-                final_output_filepath = os.path.join(final_output_dir, filename)
-                append_email_rows(df, final_output_filepath)
-                
-               
-                cleaned_filepath = os.path.join(clean_output_dir, filename)
-                save_clean_rows(df, cleaned_filepath)
-                
-            except Exception as e:
-                print(f"Error processing {filename}: {e}")
-                
-if __name__ == "__main__":
-    create_directories(clean_output_dir, final_output_dir)
-    
-    print("Directories created successfully.")
-    
+def clean_and_save_csv(input_dir, clean_output_dir, target_file):
     try:
-        process_csv_files(clean_output_dir, final_output_dir,clean_output_dir)
-        print("Processing completed successfully.")
+        if not os.path.exists(clean_output_dir):
+            os.makedirs(clean_output_dir)
+
+        input_path = os.path.join(input_dir, target_file)
+        
+        # Save file as the same name without any prefix
+        clean_output_path = os.path.join(clean_output_dir, target_file)
+
+        print(f"Cleaning CSV file: {input_path}")
+        try:
+            df = pd.read_csv(input_path)  
+        except Exception as e:
+            print(f"Error reading CSV file {input_path}: {str(e)}")
+            return None
+
+        if 'Emails' not in df.columns:
+            print(f"'Emails' column not found in {input_path}. Skipping this file.")
+            return None
+
+        print(f"Initial rows in {target_file}: {len(df)}")
+
+        df_cleaned = df.dropna(subset=['Emails']) 
+        print(f"Rows after dropping NaN emails: {len(df_cleaned)}")
+
+        email_pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")  
+
+        df_cleaned = df_cleaned[df_cleaned['Emails'].apply(lambda x: bool(email_pattern.match(str(x))))]  
+        print(f"Rows after filtering valid emails: {len(df_cleaned)}")
+
+        if 'Website' in df.columns:
+            url_pattern = re.compile(
+                r'^(https?://)?(www\.)?([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,}(/.*)?$'
+            )
+
+            df_cleaned = df_cleaned[df_cleaned['Website'].apply(lambda x: bool(url_pattern.match(str(x))))]  
+            print(f"Rows after filtering valid URLs: {len(df_cleaned)}")
+
+            df_cleaned = df_cleaned.dropna(subset=['Website'])
+            print(f"Rows after dropping NaN in Website column: {len(df_cleaned)}")
+
+        try:
+            df_cleaned.to_csv(clean_output_path, index=False)
+            print(f"Saved cleaned CSV file to: {clean_output_path}")
+            return clean_output_path 
+        except Exception as e:
+            print(f"Error saving cleaned CSV file to {clean_output_path}: {str(e)}")
+            return None
     except Exception as e:
-        print(f"Error during processing: {e}")
-    else:
-        print("Processing completed.")
+        print(f"Error in clean_and_save_csv: {str(e)}")
+        raise
+
+input_dir = r'model/output/semi-output'  
+clean_output_dir = r'model/output/final-output'  
+
+if __name__ == "__main__":
+    for file in os.listdir(input_dir):
+        if file.endswith('.csv'):
+            clean_and_save_csv(input_dir, clean_output_dir, file)

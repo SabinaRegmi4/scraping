@@ -73,16 +73,15 @@ def scrape_search_query(search_query, Country):
     driver.execute_script("Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});")
     driver.execute_script("Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});")
 
-    # Define the correct output folder path
     output_folder = os.path.join("model", "output", "raw-output")
     os.makedirs(output_folder, exist_ok=True)
 
-    # Define the filename correctly
+    # csv_filename = f"{search_query.replace(' ', '_').lower()}_{Country.lower()}.csv" 
+    file_path = os.path.join(output_folder, csv_filename) 
     csv_filename = os.path.join(output_folder, f"{search_query.replace(' ', '_').lower()}_{Country.lower()}.csv")
-
     with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["Query", "Country", "Name", "Phone", "Website"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile,file_path, fieldnames=fieldnames)
         writer.writeheader()
 
     links = [
@@ -93,6 +92,7 @@ def scrape_search_query(search_query, Country):
 
     for item in links:
         link = item["url"]
+        
         updated_url = link.replace("Yoga%20in%20Belgium", search_query.replace(" ", "%20"))
         updated_url = updated_url.replace("Belgium", Country)
 
@@ -139,11 +139,12 @@ def scrape_search_query(search_query, Country):
 
                 except (NoSuchElementException, TimeoutException) as e:
                     print(f"No 'Next' button found or last page reached for {Country}: {e}")
-                    break
-
+               
+                    break 
+            break   
         except Exception as e:
             print(f"Error occurred for link {link} ({Country}): {e}")
-
+        break
     driver.quit()
     print(f"Scraping completed. Data saved to {csv_filename}.")
     return csv_filename
