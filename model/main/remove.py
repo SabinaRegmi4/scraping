@@ -9,7 +9,6 @@ def clean_and_save_csv(input_dir, clean_output_dir, target_file):
 
         input_path = os.path.join(input_dir, target_file)
         
-        # Save file as the same name without any prefix
         clean_output_path = os.path.join(clean_output_dir, target_file)
 
         print(f"Cleaning CSV file: {input_path}")

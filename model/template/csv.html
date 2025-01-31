@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Download CSV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #e0f7fa, #e1bee7);
+            color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #6a1b9a;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-shadow: 1px 1px 6px rgba(106, 27, 154, 0.4);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #4a148c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 500px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+        }
+
+        label {
+            font-size: 1.2rem;
+            color: #4a148c;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #e1bee7;
+            border-radius: 8px;
+            outline: none;
+            width: 100%;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:focus {
+            border-color: #ba68c8;
+            box-shadow: 0 0 10px rgba(186, 104, 200, 0.3);
+        }
+
+        button {
+            background: linear-gradient(to right, #ba68c8, #6a1b9a);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #ab47bc, #4a148c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        a {
+            color: #6a1b9a;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        a:hover {
+            color: #ab47bc;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload and Download CSV</h1>
+
+    <!-- Upload CSV Form -->
+    <div class="container">
+        <h3>Upload Your CSV File</h3>
+        <form action="/upload_csv" method="POST" enctype="multipart/form-data">
+            <label for="csv_file">Choose CSV file:</label>
+            <input type="file" name="csv_file" id="csv_file" required>
+            <button type="submit">Upload CSV</button>
+        </form>
+    </div>
+
+    <!-- Download Processed File -->
+    {% if filename %}
+    <div class="container">
+        <h3>Your Processed CSV File is Ready</h3>
+        <a href="{{ url_for('download_upload', filename=filename) }}">Download the CSV</a>
+    </div>
+    {% endif %}
+</body>
+</html>

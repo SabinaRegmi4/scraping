@@ -4,6 +4,7 @@ import re
 
 def clean_csv_files(input_dir, clean_output_dir, target_file):
     try:
+
         if not os.path.exists(clean_output_dir):
             os.makedirs(clean_output_dir)
 
@@ -11,6 +12,7 @@ def clean_csv_files(input_dir, clean_output_dir, target_file):
         clean_output_path = os.path.join(clean_output_dir, target_file)
 
         print(f"Cleaning CSV file: {input_path}")
+
         try:
             df = pd.read_csv(input_path) 
         except Exception as e:
@@ -29,6 +31,9 @@ def clean_csv_files(input_dir, clean_output_dir, target_file):
 
             df_cleaned = df_cleaned.dropna(subset=['Website'])
             print(f"Rows after dropping NaN: {len(df_cleaned)}")
+
+            df_cleaned = df_cleaned.drop_duplicates()
+            print(f"Rows after removing duplicates: {len(df_cleaned)}")
 
             try:
                 df_cleaned.to_csv(clean_output_path, index=False)

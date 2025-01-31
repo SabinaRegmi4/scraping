@@ -76,12 +76,11 @@ def scrape_search_query(search_query, Country):
     output_folder = os.path.join("model", "output", "raw-output")
     os.makedirs(output_folder, exist_ok=True)
 
-    # csv_filename = f"{search_query.replace(' ', '_').lower()}_{Country.lower()}.csv" 
-    file_path = os.path.join(output_folder, csv_filename) 
-    csv_filename = os.path.join(output_folder, f"{search_query.replace(' ', '_').lower()}_{Country.lower()}.csv")
+    csv_filename = os.path.join(output_folder, f"{search_query.replace(' ', '_').lower()}.csv")
+
     with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["Query", "Country", "Name", "Phone", "Website"]
-        writer = csv.DictWriter(csvfile,file_path, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
     links = [
@@ -92,7 +91,6 @@ def scrape_search_query(search_query, Country):
 
     for item in links:
         link = item["url"]
-        
         updated_url = link.replace("Yoga%20in%20Belgium", search_query.replace(" ", "%20"))
         updated_url = updated_url.replace("Belgium", Country)
 
@@ -131,20 +129,26 @@ def scrape_search_query(search_query, Country):
                         print(f"Error occurred while processing company: {e}")
 
                 try:
-                    next_button = WebDriverWait(driver, 13).until(
-                        EC.element_to_be_clickable((By.XPATH, "(//span[text()='Next >'])[1]"))
-                    )
-                    hover_and_click(driver, next_button)
-                    time.sleep(random.uniform(5, 10))
+                    next_button = driver.find_elements(By.XPATH, "(//span[text()='Next >'])[1]")
+                    if next_button:
+                        next_button = WebDriverWait(driver, 13).until(
+                            EC.element_to_be_clickable((By.XPATH, "(//span[text()='Next >'])[1]"))
+                        )
+                        hover_and_click(driver, next_button)
+                        time.sleep(random.uniform(5, 10))
+
+                        human_scroll(driver)
+                    else:
+                        print("Reached the last page.")
+                        break
 
                 except (NoSuchElementException, TimeoutException) as e:
-                    print(f"No 'Next' button found or last page reached for {Country}: {e}")
-               
-                    break 
-            break   
+                    print(f"Error occurred while trying to navigate to the next page for {Country}: {e}")
+                    break
+
         except Exception as e:
             print(f"Error occurred for link {link} ({Country}): {e}")
-        break
+
     driver.quit()
     print(f"Scraping completed. Data saved to {csv_filename}.")
     return csv_filename

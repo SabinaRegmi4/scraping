@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Scraping</title>
+    <title>Local Scraping</title>
     <style>
         * {
             margin: 0;
@@ -35,12 +35,12 @@
         h1 {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #F8F8FF; /* Lighter color for better contrast */
+            color: #F8F8FF; 
         }
 
         .container {
             width: 95%;
-            height: 400px; /* Adjusted to better fit the form and content */
+            height: 400px;
             max-width: 700px;
             margin: 30px auto;
             padding: 35px;
@@ -136,13 +136,13 @@
 </head>
 <body>
     <header>
-        <h1>Business Scraping</h1>
+        <h1>Local Scraping</h1>
     </header>
 
     <div class="container">
-        <form action="/business" method="POST">
-            <label for="search_query">Enter Business Search Query:</label>
-            <input type="text" id="search_query" name="search_query" placeholder="Enter your query" required>
+        <form action="/localbusiness" method="POST">
+            <label for="query">Enter Business local  Search Query:</label>
+            <input type="text" id="query" name="query" placeholder="Enter your query" required>
 
             <button type="submit">Start Scraping</button>
         </form>
@@ -154,17 +154,6 @@
                     </a>
                 </div>  
             {% endif %}
-             
-           
-        <!-- {% if final_csv_filename %}
-        <div style="margin-top: 60px;">
-            <h2>Processing Complete</h2>
-            <a href="{{ url_for('download_csv', filename=final_csv_filename.split('/')[0]) }}" target="_blank">
-                <button>Download CSV</button>
-            </a>
-        </div>
-        {% endif %} -->
-
        
 
         <div class="footer">
